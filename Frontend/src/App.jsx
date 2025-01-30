@@ -8,6 +8,7 @@ import Login from "./components/Authentication/User/Login.jsx";
 import Signup from "./components/Authentication/User/Signup.jsx";
 import AdminSignup from "./components/Authentication/Admin/AdminSignup.jsx";
 import AdminLogin from "./components/Authentication/Admin/AdminLogin.jsx";
+import EventSubmit from "./Events/EventSubmit.jsx";
 function App() {
   return (
     <div>
@@ -17,6 +18,9 @@ function App() {
         <Route path="/signup" element={<Signup />} /> 
         <Route path="/admin/signup" element={<AdminSignup />} />
         <Route path="/admin/login" element={<AdminLogin />} />
+        {/* events */}
+        <Route path="/user/login/events" element={<EventSubmit/>} />
+        
       </Routes>
       <Toaster />
     </div>

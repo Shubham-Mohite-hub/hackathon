@@ -1,14 +1,16 @@
-import express from "express";
-import { submitEvent, getPendingEvents, updateEventStatus, getApprovedEvents } from "../controllers/eventController.js";
-import { isAuthenticated, isAdmin } from "../middleware/authMiddleware.js";
-import multer from "multer";
+import express from 'express';
+import { submitEvent, approveEvent, getPendingEvents } from '../controllers/eventController.js';
+import { isAuthenticated, isAdmin } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
-const upload = multer({ dest: "uploads/" }); // Configuring file upload
 
-router.post("/submit", isAuthenticated, upload.single("pdf"), submitEvent);
-router.get("/pending", isAdmin, getPendingEvents);
-router.put("/update-status", isAdmin, updateEventStatus);
-router.get("/approved", getApprovedEvents);
+// User submits an event (this is public)
+router.post('/submit', isAuthenticated, submitEvent);
+
+// Admin approves or denies an event (this is protected)
+router.put('/approve/:id', isAdmin, approveEvent);
+
+// Admin gets all events for approval (this is protected)
+router.get('/admin/events', isAdmin, getPendingEvents);
 
 export default router;

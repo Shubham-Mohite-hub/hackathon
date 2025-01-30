@@ -1,65 +1,57 @@
-import Event from "../models/Event.js";
+import Event from '../models/Event.js';
 
-// Submit Event Request
+// User submits an event (this is public)
 export const submitEvent = async (req, res) => {
   try {
-    const { name, type, dateTime, description, location, mode } = req.body;
-    const pdf = req.file?.path; // Getting PDF file path
-    const organizer = req.user.id; // Assuming user is authenticated
+    const { name, eventType, date, description, location, mode, pdf } = req.body;
 
     const newEvent = new Event({
       name,
-      type,
-      dateTime,
+      eventType,
+      date,
       description,
       location,
       mode,
       pdf,
-      organizer
+      status: 'Pending',  // initially set to 'Pending'
     });
 
     await newEvent.save();
-    res.status(201).json({ message: "Event request submitted successfully!" });
+    res.status(201).json({ message: 'Event submitted successfully for approval!' });
   } catch (error) {
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ message: 'Error submitting event', error: error.message });
   }
 };
 
-// Get Pending Events (For Admin)
-export const getPendingEvents = async (req, res) => {
+// Admin approves or denies an event (this is protected)
+export const approveEvent = async (req, res) => {
   try {
-    const events = await Event.find({ status: "Pending" }).populate("organizer", "name email");
-    res.status(200).json(events);
-  } catch (error) {
-    res.status(500).json({ error: "Server error" });
-  }
-};
+    const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).json({ message: 'Event not found' });
 
-// Approve or Reject Event
-export const updateEventStatus = async (req, res) => {
-  try {
-    const { eventId, status } = req.body;
+    const { action } = req.body;  // action can be 'approve' or 'deny'
 
-    if (!["Approved", "Rejected"].includes(status)) {
-      return res.status(400).json({ error: "Invalid status value" });
+    if (action === 'approve') {
+      event.status = 'Approved';
+    } else if (action === 'deny') {
+      event.status = 'Denied';
+    } else {
+      return res.status(400).json({ message: 'Invalid action' });
     }
 
-    const event = await Event.findByIdAndUpdate(eventId, { status }, { new: true });
-
-    if (!event) return res.status(404).json({ error: "Event not found" });
-
-    res.status(200).json({ message: `Event ${status.toLowerCase()} successfully!` });
+    await event.save();
+    res.status(200).json({ message: `Event ${action}d successfully!` });
   } catch (error) {
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ message: 'Error processing event approval/denial', error: error.message });
   }
 };
 
-// Get Approved Events (For Display)
-export const getApprovedEvents = async (req, res) => {
+// Admin gets all events for approval (this is protected)
+export const getPendingEvents = async (req, res) => {
   try {
-    const events = await Event.find({ status: "Approved" });
+    const events = await Event.find({ status: 'Pending' });
     res.status(200).json(events);
   } catch (error) {
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ message: 'Error fetching events', error: error.message });
   }
 };

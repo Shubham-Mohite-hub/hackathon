@@ -8,33 +8,35 @@ function Login() {
 
   const navigateTo = useNavigate();
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    try {
-      const { data } = await axios.post(
-        "http://localhost:3000/user/login",
-        {
-          email,
-          password,
+  const token = localStorage.getItem("jwt");
+
+const handleRegister = async (e) => {
+  e.preventDefault();
+  try {
+    const { data } = await axios.post(
+      "http://localhost:3000/user/login",
+      {
+        email,
+        password,
+      },
+      {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,  // Add the Authorization header here
         },
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      console.log(data);
-      toast.success(data.message || "User loggedin successfully");
-      localStorage.setItem("jwt", data.token);
-      navigateTo("/");
-      setEmail("");
-      setPassword("");
-    } catch (error) {
-      console.log(error);
-      toast.error(error.response.data.errors || "User registration failed");
-    }
-  };
+      }
+    );
+    console.log(data);
+    toast.success(data.message || "User loggedin successfully");
+    navigateTo("/user/login/events");
+    setEmail("");
+    setPassword("");
+  } catch (error) {
+    console.log(error);
+    toast.error(error.response?.data?.errors || "User registration failed");
+  }
+};
 
   return (
     <div>
