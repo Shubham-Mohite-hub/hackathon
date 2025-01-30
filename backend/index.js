@@ -2,9 +2,9 @@ import express from "express";
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import userRoute from "./routes/user.route.js";
-
-
+import adminRoutes from "./routes/adminRoutes.js"
 import path from "path";
+import eventRoutes from "./routes/eventRoutes.js"
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
@@ -34,9 +34,8 @@ try {
 }
 // app.use("api/auth",authRoutes)
 app.use("/user", userRoute);
-
-
-
+app.use("/admin", adminRoutes);
+app.use("/events", eventRoutes);
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}`);

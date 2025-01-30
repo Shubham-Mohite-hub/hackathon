@@ -5,6 +5,7 @@ import cimg from "../../assets/cimg.avif"
 import Navbar from './Navbar'
 import Landingpg from './Landingpg'
 import Cards from './Card'
+// import Footer from './Footer'
 
 const Home = () => {
   return (
@@ -34,7 +35,9 @@ const Home = () => {
       <Cards heading="EVENTS" image={cimg} title="title" description="description"/>
       <Cards heading="EVENTS" image={cimg} title="title" description="description"/>
       </div>
+      {/* <Footer/> */}
     </div>
+
 
   )
 }
