@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import userRoute from "./routes/user.route.js";
 import adminRoutes from "./routes/adminRoutes.js"
-import eventRoutes from './routes/eventRoutes.js';
+import eventRoutes from "./routes/eventRoutes.js"
 import path from "path";
 import cookieParser from "cookie-parser";
 import cors from "cors";

@@ -1,42 +1,16 @@
-import Event from "../models/event.js";
+import Event from '../models/eventModel.js';
 
-// Create an event
-export const createEvent = async (req, res) => {
+const createEvent = async (req, res) => {
   try {
-    const { eventName, eventType, eventDateTime, duration, teamSize, registrationDeadline, description, guidelines, location, mode } = req.body;
-
-    if (!req.user) {
-      return res.status(401).json({ message: "Unauthorized access" });
-    }
-
-    const newEvent = new Event({
-      eventName,
-      eventType,
-      eventDateTime,
-      duration,
-      teamSize,
-      registrationDeadline,
-      description,
-      guidelines,
-      location,
-      mode,
-      image: req.file ? `/uploads/${req.file.filename}` : null, // Save file path
-      createdBy: req.user.id, // User who created the event
+    const event = new Event({
+      ...req.body,
+      createdBy: req.user._id, // Store the user ID from the token
     });
-
-    await newEvent.save();
-    res.status(201).json({ message: "Event created successfully", event: newEvent });
+    await event.save();
+    res.status(201).json({ message: 'Event created successfully', event });
   } catch (error) {
-    res.status(500).json({ message: "Error creating event", error: error.message });
+    res.status(400).json({ message: 'Error creating event', error });
   }
 };
 
-// Fetch all events
-export const getEvents = async (req, res) => {
-  try {
-    const events = await Event.find().populate("createdBy", "name email");
-    res.json(events);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching events", error: error.message });
-  }
-};
+export { createEvent };
