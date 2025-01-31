@@ -20,7 +20,7 @@ app.use(
     credentials: true, // Allow cookies and authentication headers
   })
 );
-
+app.use("/uploads", express.static("uploads"));
 // ++++++++++++++++
 const PORT=3000;
 const db =PORT || 3001;

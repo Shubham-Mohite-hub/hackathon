@@ -1,16 +1,11 @@
-import express from 'express';
-import { submitEvent, approveEvent, getPendingEvents } from '../controllers/eventController.js';
-import { isAuthenticated, isAdmin } from '../middlewares/authMiddleware.js';
+import express from "express";
+import { createEvent, getEvents } from "../controllers/eventController.js";
+import { authMiddleware } from "../middlewares/authMiddleware.js";
+import upload from "../middlewares/uploadMiddleware.js";
 
 const router = express.Router();
 
-// User submits an event (this is public)
-router.post('/submit', isAuthenticated, submitEvent);
-
-// Admin approves or denies an event (this is protected)
-router.put('/approve/:id', isAdmin, approveEvent);
-
-// Admin gets all events for approval (this is protected)
-router.get('/admin/events', isAdmin, getPendingEvents);
+router.post("/create", authMiddleware, upload.single("image"), createEvent);
+router.get("/all", getEvents);
 
 export default router;

@@ -3,7 +3,7 @@ import React from 'react'
 const Cards = (props) => {
     return (
 
-        <div className=' w-110 mb-20'>
+        <div className=' w-110 mb-8'>
           <div className="max-w-sm rounded overflow-hidden shadow-lg bg-white ml-13 rounded-3xl">
           <img className="w-full h-48 object-cover" src={props.image} alt='title' />
           <div className="px-6 py-4">

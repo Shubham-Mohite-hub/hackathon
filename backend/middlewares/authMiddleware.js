@@ -1,43 +1,47 @@
-import jwt from 'jsonwebtoken';
-import User from '../models/user.js';  // Make sure this path is correct
-import Admin from '../models/adminModel.js';  // Same as above
+import jwt from "jsonwebtoken";
+import User from "../models/user.js";
+import Admin from "../models/adminModel.js";
+export const authMiddleware  = async (req, res, next) => {
+  const token = req.header("Authorization")?.split(" ")[1];
 
-// Authentication middleware to verify if the user is authenticated
-export const isAuthenticated = async (req, res, next) => {
-  const token = req.cookies.token || req.header("Authorization")?.replace("Bearer ", "");
-  
   if (!token) {
-    return res.status(401).json({ message: "No token, authorization denied" });
+    return res.status(401).json({ message: "Access denied. No token provided." });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = await User.findById(decoded.id);  // Get user data from decoded token
-    if (!req.user) return res.status(404).json({ message: "User not found" });
-    
+    req.user = await User.findById(decoded.id).select("-password");
+    if (!req.user) {
+      return res.status(401).json({ message: "User not found" });
+    }
     next();
   } catch (error) {
-    res.status(401).json({ message: "Invalid or expired token" });
+    res.status(401).json({ message: "Invalid token" });
   }
 };
 
-// Admin authentication middleware to verify if the user is an admin
+
 export const isAdmin = async (req, res, next) => {
-  const token = req.cookies.token || req.header("Authorization")?.replace("Bearer ", "");
-  
-  if (!token) {
-    return res.status(403).json({ message: "No token, authorization denied" });
-  }
-
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const admin = await Admin.findById(decoded.id);  // Get admin data from decoded token
+    const token = req.cookies.jwt || req.header("Authorization")?.replace("Bearer ", ""); // Ensure consistency
 
-    if (!admin) return res.status(403).json({ message: "You do not have permission to perform this action" });
+    if (!token) {
+      return res.status(403).json({ message: "No token, authorization denied" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded) {
+      return res.status(403).json({ message: "Invalid or expired token" });
+    }
+
+    const admin = await Admin.findById(decoded.id); // Ensure admin exists
+    if (!admin) {
+      return res.status(403).json({ message: "You do not have permission to perform this action" });
+    }
 
     req.admin = admin;
     next();
   } catch (error) {
-    res.status(403).json({ message: "Invalid or expired token" });
+    return res.status(403).json({ message: "Invalid or expired token" });
   }
 };

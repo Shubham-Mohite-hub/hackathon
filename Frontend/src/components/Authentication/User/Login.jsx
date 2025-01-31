@@ -2,41 +2,45 @@ import axios from "axios";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
+
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
   const navigateTo = useNavigate();
 
-  const token = localStorage.getItem("jwt");
+  const handleRegister = async (e) => {
+    e.preventDefault();
 
-const handleRegister = async (e) => {
-  e.preventDefault();
-  try {
-    const { data } = await axios.post(
-      "http://localhost:3000/user/login",
-      {
-        email,
-        password,
-      },
-      {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,  // Add the Authorization header here
-        },
-      }
-    );
-    console.log(data);
-    toast.success(data.message || "User loggedin successfully");
-    navigateTo("/user/login/events");
-    setEmail("");
-    setPassword("");
-  } catch (error) {
-    console.log(error);
-    toast.error(error.response?.data?.errors || "User registration failed");
-  }
-};
+    try {
+      const { data } = await axios.post(
+        "http://localhost:3000/user/login", // Backend URL
+        { email, password },
+        {
+          withCredentials: true, // Ensure cookies are included
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem("jwt")}`, 
+          },
+        }
+      );
+
+      console.log(data);
+      toast.success(data.message || "User logged in successfully");
+
+      // Save the JWT token to localStorage (or cookies, if preferred)
+      localStorage.setItem("jwt", data.token);
+
+      // Redirect the user to the next page
+      navigateTo("/user/login/events");
+
+      // Reset form values
+      setEmail("");
+      setPassword("");
+    } catch (error) {
+      console.log(error);
+      toast.error(error.response?.data?.errors || "Login failed");
+    }
+  };
 
   return (
     <div>
@@ -45,11 +49,9 @@ const handleRegister = async (e) => {
           <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
             <h2 className="text-2xl font-semibold mb-5 text-center">Login</h2>
             <form onSubmit={handleRegister}>
-              {/* email */}
+              {/* Email */}
               <div className="mb-4">
-                <label className="block mb-2 font-semibold" htmlFor="">
-                  Email
-                </label>
+                <label className="block mb-2 font-semibold">Email</label>
                 <input
                   className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                   type="text"
@@ -58,17 +60,15 @@ const handleRegister = async (e) => {
                   placeholder="Type Email"
                 />
               </div>
-              {/* password */}
+              {/* Password */}
               <div className="mb-4">
-                <label className="block mb-2 font-semibold" htmlFor="">
-                  Password
-                </label>
+                <label className="block mb-2 font-semibold">Password</label>
                 <input
                   className="w-full p-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Type Username"
+                  placeholder="Type Password"
                 />
               </div>
 
@@ -82,7 +82,7 @@ const handleRegister = async (e) => {
                 New user?{" "}
                 <Link to="/signup" className="text-blue-600 hover:underline">
                   Signup
-                </Link>{" "}
+                </Link>
               </p>
             </form>
           </div>
